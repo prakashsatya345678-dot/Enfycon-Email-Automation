@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enfycon — Campaign Launcher</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#05060a;
+  --accent:#00ff87;
+  --accent2:#00d4ff;
+  --text:#f0f2ff;
+  --muted:#4a5168;
+}
+
+body{
+  background:var(--bg);
+  font-family:'DM Mono',monospace;
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  overflow:hidden;
+  user-select:none;
+}
+
+/* ── animated bg ── */
+.bg-rings{
+  position:fixed;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;z-index:0;
+}
+.ring{
+  position:absolute;
+  border-radius:50%;
+  border:1px solid rgba(0,255,135,0.06);
+  animation:expand 6s ease-out infinite;
+}
+.ring:nth-child(1){width:300px;height:300px;animation-delay:0s}
+.ring:nth-child(2){width:500px;height:500px;animation-delay:1.2s}
+.ring:nth-child(3){width:720px;height:720px;animation-delay:2.4s}
+.ring:nth-child(4){width:960px;height:960px;animation-delay:3.6s}
+@keyframes expand{
+  0%{opacity:0.6;transform:scale(0.85)}
+  100%{opacity:0;transform:scale(1.05)}
+}
+
+/* ── center glow ── */
+.glow-center{
+  position:fixed;
+  width:500px;height:500px;
+  background:radial-gradient(circle, rgba(0,255,135,0.07) 0%, transparent 70%);
+  border-radius:50%;
+  pointer-events:none;z-index:0;
+  animation:glowPulse 4s ease-in-out infinite;
+}
+@keyframes glowPulse{
+  0%,100%{transform:scale(1);opacity:1}
+  50%{transform:scale(1.1);opacity:0.7}
+}
+
+/* ── main content ── */
+.content{
+  position:relative;z-index:1;
+  display:flex;flex-direction:column;
+  align-items:center;gap:0;
+  animation:fadeIn 1s ease both;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── company badge ── */
+.company{
+  font-size:11px;
+  color:var(--muted);
+  letter-spacing:.25em;
+  text-transform:uppercase;
+  margin-bottom:24px;
+  display:flex;align-items:center;gap:10px;
+}
+.company::before,.company::after{
+  content:'';width:28px;height:1px;background:var(--muted);opacity:.4;
+}
+
+/* ── big title ── */
+.title{
+  font-family:'Syne',sans-serif;
+  font-size:clamp(52px,10vw,96px);
+  font-weight:800;
+  line-height:.95;
+  letter-spacing:-3px;
+  text-align:center;
+  margin-bottom:8px;
+  background:linear-gradient(160deg,#fff 30%,rgba(255,255,255,0.35));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.title-sub{
+  font-family:'Syne',sans-serif;
+  font-size:clamp(52px,10vw,96px);
+  font-weight:800;
+  line-height:.95;
+  letter-spacing:-3px;
+  text-align:center;
+  margin-bottom:48px;
+  background:linear-gradient(160deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+
+/* ── THE BUTTON ── */
+.btn-wrap{
+  position:relative;
+  margin-bottom:40px;
+}
+
+/* outer glow ring */
+.btn-ring{
+  position:absolute;
+  inset:-12px;
+  border-radius:50%;
+  border:1px solid rgba(0,255,135,0.2);
+  animation:ringPulse 2.5s ease-in-out infinite;
+  pointer-events:none;
+}
+.btn-ring2{
+  position:absolute;
+  inset:-24px;
+  border-radius:50%;
+  border:1px solid rgba(0,255,135,0.08);
+  animation:ringPulse 2.5s ease-in-out infinite;
+  animation-delay:.5s;
+  pointer-events:none;
+}
+@keyframes ringPulse{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:.3;transform:scale(1.06)}
+}
+
+.btn{
+  width:160px;height:160px;
+  border-radius:50%;
+  border:1px solid rgba(0,255,135,0.3);
+  background:rgba(0,255,135,0.05);
+  cursor:pointer;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:10px;
+  transition:all .3s cubic-bezier(.34,1.56,.64,1);
+  position:relative;
+  overflow:hidden;
+  backdrop-filter:blur(10px);
+}
+
+/* inner shimmer */
+.btn::before{
+  content:'';
+  position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 0deg,transparent 0%,rgba(0,255,135,0.12) 20%,transparent 40%);
+  animation:rotate 4s linear infinite;
+  opacity:0;transition:opacity .3s;
+}
+@keyframes rotate{to{transform:rotate(360deg)}}
+
+.btn:hover{
+  border-color:rgba(0,255,135,0.7);
+  background:rgba(0,255,135,0.1);
+  transform:scale(1.08);
+  box-shadow:0 0 60px rgba(0,255,135,0.25),0 0 120px rgba(0,255,135,0.1);
+}
+.btn:hover::before{opacity:1}
+.btn:active{transform:scale(.97)}
+.btn.running{pointer-events:none}
+.btn.done{
+  border-color:rgba(0,255,135,0.8);
+  background:rgba(0,255,135,0.12);
+  box-shadow:0 0 80px rgba(0,255,135,0.3),0 0 160px rgba(0,255,135,0.1);
+}
+
+.btn-icon{
+  font-size:32px;
+  transition:transform .3s;
+  display:block;
+}
+.btn:hover .btn-icon{transform:translateY(-3px) scale(1.1)}
+
+.btn-label{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  color:var(--accent);
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  opacity:.8;
+}
+
+/* spinner inside button */
+.spinner{
+  width:32px;height:32px;
+  border:2px solid rgba(0,255,135,0.15);
+  border-top-color:var(--accent);
+  border-radius:50%;
+  animation:spin .7s linear infinite;
+  display:none;
+}
+.btn.running .spinner{display:block}
+.btn.running .btn-icon{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── status line ── */
+.status{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:48px;
+  min-height:20px;
+}
+.s-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--muted);transition:all .3s;
+}
+.s-dot.idle{}
+.s-dot.running{background:var(--accent);box-shadow:0 0 8px var(--accent);animation:pulse 1s infinite}
+.s-dot.done{background:var(--accent);box-shadow:0 0 10px var(--accent)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.s-text{
+  font-size:11px;color:var(--muted);
+  letter-spacing:.12em;text-transform:uppercase;
+  transition:color .3s;
+}
+.s-text.done{color:var(--accent)}
+
+/* ── meta info ── */
+.meta{
+  display:flex;align-items:center;gap:20px;
+  font-size:10px;color:var(--muted);
+  letter-spacing:.1em;text-transform:uppercase;
+}
+.meta-sep{width:3px;height:3px;border-radius:50%;background:var(--muted);opacity:.4}
+
+/* ── credit ── */
+.credit{
+  position:fixed;
+  bottom:24px;
+  font-size:11px;
+  color:var(--muted);
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  opacity:.5;
+}
+</style>
+</head>
+<body>
+
+<div class="bg-rings">
+  <div class="ring"></div>
+  <div class="ring"></div>
+  <div class="ring"></div>
+  <div class="ring"></div>
+</div>
+<div class="glow-center"></div>
+
+<div class="content">
+
+  <div class="company">Enfycon</div>
+
+  <div class="title">Email</div>
+  <div class="title-sub">Campaign</div>
+
+  <div class="btn-wrap">
+    <div class="btn-ring"></div>
+    <div class="btn-ring2"></div>
+    <button class="btn" id="btn" onclick="launch()">
+      <div class="spinner" id="spin"></div>
+      <span class="btn-icon" id="ico">🚀</span>
+      <span class="btn-label" id="lbl">Launch</span>
+    </button>
+  </div>
+
+  <div class="status">
+    <div class="s-dot" id="dot"></div>
+    <span class="s-text" id="stxt">Ready to fire</span>
+  </div>
+
+  <div class="meta">
+    <span>v4.0</span>
+    <div class="meta-sep"></div>
+    <span>GPT-4.1 Mini</span>
+    <div class="meta-sep"></div>
+    <span>Gmail</span>
+    <div class="meta-sep"></div>
+    <span>Automated</span>
+  </div>
+
+</div>
+
+<div class="credit">Created by Satya Prakash</div>
+
+<script>
+async function launch(){
+  const btn=document.getElementById('btn'),
+        dot=document.getElementById('dot'),
+        stxt=document.getElementById('stxt'),
+        ico=document.getElementById('ico'),
+        lbl=document.getElementById('lbl');
+
+  btn.classList.add('running');
+  dot.className='s-dot running';
+  stxt.textContent='Triggering workflow…';
+  lbl.textContent='Wait...';
+
+  try{
+    await fetch('https://n8n.srv985981.hstgr.cloud/webhook/e29099ac-b48d-40b1-9ba6-92a815efb515',
+      {method:'GET',mode:'no-cors'});
+  }catch(e){}
+
+  btn.classList.remove('running');
+  btn.classList.add('done');
+  ico.textContent='✓';
+  lbl.textContent='Sent!';
+  dot.className='s-dot done';
+  stxt.className='s-text done';
+  stxt.textContent='Campaign triggered successfully';
+}
+</script>
+</body>
+</html>
